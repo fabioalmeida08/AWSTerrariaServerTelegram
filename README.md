@@ -10,6 +10,12 @@ Este projeto tem como objetivo principal criar um servidor do jogo Terraria na A
 - Integrar a infraestrutura com um bot Telegram interativo.
 ## Fluxo da aplicação
 ![Fluxo Aplicação](./arquitetura.png)
+
+### Video demonstrando o bot no telegram
+https://github.com/user-attachments/assets/4f4982de-bf58-4802-82ed-f28a739929a8
+
+OBS: o video foi editado para diminuir o tamanho do arquivo.
+
 ## Requisitos
 - **AWS SAM**: [Documentação AWS SAM](https://docs.aws.amazon.com/serverless-application-model/latest/developerguide/what-is-sam.html)
 - **Terraform**: [Documentação Terraform](https://www.terraform.io/docs/index.html)
