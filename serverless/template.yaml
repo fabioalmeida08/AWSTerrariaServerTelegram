@@ -1,0 +1,117 @@
+AWSTemplateFormatVersion: '2010-09-09'
+Transform: AWS::Serverless-2016-10-31
+Description: >
+  telebot-app
+
+  Sample SAM Template for telebot-app
+
+# More info about Globals: https://github.com/awslabs/serverless-application-model/blob/master/docs/globals.rst
+Globals:
+  Function:
+    Timeout: 10
+
+
+Parameters:
+  EC2Arn:
+    Type: String
+    Description: EC2 Arn
+  BucketName:
+    Type: String
+    Description: Bucket Name
+
+Resources:
+## Lambda Function
+
+  TelegramBotFunction:
+    Type: AWS::Serverless::Function 
+    Properties:
+      CodeUri: telegrambot/
+      Handler: app.lambda_handler
+      Runtime: python3.12
+      Architectures:
+        - x86_64      
+      Events:
+        Webhook:
+          Type: Api 
+          Properties:
+            Path: /webhook
+            Method: post
+      Layers:
+        - !Ref ProjectLayers
+      Role: !GetAtt TelegramLambdaRole.Arn
+      Environment:
+        Variables:
+          BUCKET_NAME: !Ref BucketName  
+
+## IAM Role
+
+  TelegramLambdaRole:
+    Type: AWS::IAM::Role
+    Properties:
+      AssumeRolePolicyDocument:
+        Version: "2012-10-17"
+        Statement:
+          - Effect: Allow
+            Principal:
+              Service:
+                - lambda.amazonaws.com
+            Action:
+              - 'sts:AssumeRole'
+      ManagedPolicyArns:
+        - arn:aws:iam::aws:policy/service-role/AWSLambdaBasicExecutionRole
+      Policies:
+        - PolicyName: EC2ActionsForLambda
+          PolicyDocument:
+            Version: "2012-10-17"
+            Statement:
+              - Effect: Allow
+                Action:
+                  - 'ec2:StopInstances'
+                  - 'ec2:StartInstances'
+                Resource: !Ref EC2Arn
+              - Effect: Allow
+                Action:
+                  - 'ssm:SendCommand'
+                  - 'ssm:GetCommandInvocation'
+                Resource:
+                  - !Ref EC2Arn
+                  - "arn:aws:ssm:*:*:document/AWS-RunShellScript"                 
+        - PolicyName: EC2ReadActionsForLambda
+          PolicyDocument:
+            Version: "2012-10-17"
+            Statement:
+              - Effect: Allow
+                Action:
+                  - 'ec2:DescribeInstances'
+                Resource: "*"              
+        
+        - PolicyName: SSMParameterReadPolicy
+          PolicyDocument:
+            Version: "2012-10-17"
+            Statement:
+              - Effect: Allow
+                Action:
+                  - 'ssm:GetParameter'
+                Resource: 'arn:aws:ssm:*:*:parameter/Telegram/TokenBot'
+
+## Layers  
+
+  ProjectLayers:
+    Type: AWS::Serverless::LayerVersion
+    Properties:
+      ContentUri: layers
+      CompatibleRuntimes:
+        - python3.12
+    Metadata:
+      BuildMethod: python3.12            
+
+Outputs:
+  ApiEndpoint:
+    Description: "API Gateway endpoint URL for Prod stage function"
+    Value: !Sub "https://${ServerlessRestApi}.execute-api.${AWS::Region}.amazonaws.com/Prod/webhook/"
+  Function:
+    Description: "Lambda Function ARN"
+    Value: !GetAtt TelegramBotFunction.Arn
+  IamRole:
+    Description: "IAM Role created for function"
+    Value: !GetAtt TelegramLambdaRole.Arn
