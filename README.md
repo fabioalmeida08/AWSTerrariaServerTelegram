@@ -26,18 +26,20 @@ OBS: o video foi editado para diminuir o tamanho do arquivo.
   - usar o comando ```aws configure```
   - Insira as credenciais da AWS, a região padrão e o formato de saída quando solicitado.
 ## Configurações Necessárias
-### Criar o arquivo `terraform.tfvars`
-No diretório `infra`, crie o arquivo `terraform.tfvars` utilizando as variáveis de exemplo fornecidas no arquivo `terraform_example.tfvars`. As variáveis incluem:
-- **Token do Bot Telegram**
-- **IP com máscara de rede /32** (exemplo: `192.168.0.1/32`)
-- **Caminho para a chave pública** (exemplo: `~/.ssh/public_key.pub`)
 
 ### Criar uma Chave SSH
 Para criar uma chave SSH que será utilizada com a instância EC2:
 ```bash
 ssh-keygen -t ed25519
 ```
+
+### Criar o arquivo `terraform.tfvars`
+No diretório `infra`, crie o arquivo `terraform.tfvars` utilizando as variáveis de exemplo fornecidas no arquivo `terraform_example.tfvars`. As variáveis incluem:
+- **Token do Bot Telegram**
+- **Seu IP com máscara de rede /32** (exemplo: `192.168.0.1/32`)
+- **Caminho para a chave pública** (exemplo: `~/.ssh/public_key.pub`)
 ## Deploy
+
 ### Provisionar a Infraestrutura
 Para provisionar a infraestrutura, utilize o comando:
 ```bash
